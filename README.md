@@ -15,5 +15,5 @@ Script Index
 
 ### http-screenshot
 
-Take a screenshot of discovered HTTP(S) services using PhantomJS
+Take a screenshot of discovered HTTP(S) services using PhantomJS. Requires at least Nmap version 7.0.
 
