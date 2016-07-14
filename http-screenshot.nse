@@ -80,7 +80,7 @@ page.open(address, function (status) {
             page.render(output);
             console.log(page.plainText);
             phantom.exit();
-        }, 200);
+        }, 10000);
     }
 });
 ]]
