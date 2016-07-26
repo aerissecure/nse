@@ -17,3 +17,8 @@ Script Index
 
 Take a screenshot of discovered HTTP(S) services using PhantomJS. Requires at least Nmap version 7.0.
 
+
+### http-sec-headers
+
+Evaluate the security of the response headers received from a request to the web server root folder. Requires at least Nmap version 7.0.
+
