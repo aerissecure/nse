@@ -76,11 +76,9 @@ page.open(address, function (status) {
     }
     if (system.args.length == 3) {
         output = system.args[2];
-        window.setTimeout(function () {
-            page.render(output);
-            console.log(page.plainText);
-            phantom.exit();
-        }, 10000);
+        page.render(output);
+        console.log(page.plainText);
+        phantom.exit();
     }
 });
 ]]
