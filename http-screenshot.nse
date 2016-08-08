@@ -64,6 +64,7 @@ var page = require('webpage').create(),
 
 address = system.args[1];
 page.viewportSize = { width: 600, height: 600 };
+page.settings.resourceTimeout = 30000;
 
 page.open(address, function (status) {
     if (status !== 'success' || system.args.length > 3) {
