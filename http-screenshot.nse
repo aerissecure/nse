@@ -84,6 +84,16 @@ page.open(address, function (status) {
 });
 ]]
 
+local img_html = [[
+<a href='%s', target=_blank>
+%s
+<br>
+<img src='%s' width=400 border=1 />
+<br>
+</a>
+<br><hr><br>
+]]
+
 --- References or embeds the image within index.html
 local index_image = function(imgfile, url)
     local indexfile = string.format("%sindex.html", prefix)
@@ -92,7 +102,6 @@ local index_image = function(imgfile, url)
     stdnse.verbose("adding %s to index file %s", imgfile, indexfile)
 
     local index = io.open(indexfile, "a")
-    index:write(string.format("<a href='%s', target=_blank>%s</a>\n<br>\n", url, url))
 
     local src
     if stdnse.get_script_args(SCRIPT_NAME .. '.embed') then
@@ -108,8 +117,7 @@ local index_image = function(imgfile, url)
     else
         src = imgfile
     end
-    index:write(string.format("<img src='%s' width=400 border=1 />\n<br>\n", src))
-    index:write("\n<br><hr><br>\n")
+    index:write(string.format(img_html, url, url, src))
     index:close()
 
     return indexfile, imgfile
