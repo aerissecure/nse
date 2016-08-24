@@ -64,7 +64,7 @@ var page = require('webpage').create(),
 
 address = system.args[1];
 page.viewportSize = { width: 1024, height: 600 };
-page.settings.resourceTimeout = 10000; // Allow 10s for slow resources
+page.settings.resourceTimeout = 30000; // Allow 10s for slow resources
 
 var requests = [];
 
