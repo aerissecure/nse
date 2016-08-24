@@ -36,7 +36,7 @@ downloaded from http://phantomjs.org/ and placed on the system path.
 
 
 -- HTTP screenshot script
--- rev 1.0 (2016-07-11)
+-- rev 1.1 (2016-08-23)
 -- Original NASL script by Jeffrey Stiles (@uthcr33p)(jeff@aerissecure.com)
 
 categories = {"default", "discovery", "safe"}
@@ -63,24 +63,49 @@ var page = require('webpage').create(),
     address, output;
 
 address = system.args[1];
-page.viewportSize = { width: 600, height: 600 };
-page.settings.resourceTimeout = 30000;
+page.viewportSize = { width: 1024, height: 600 };
+page.settings.resourceTimeout = 10000; // Allow 10s for slow resources
+
+var requests = [];
+
+page.onResourceRequested = function(requestData, networkRequest) {
+    requests.push(requestData.id);
+};
+
+page.onResourceReceived = function(response) {
+    var index = requests.indexOf(response.id);
+    requests.splice(index, 1);
+};
+
+page.onResourceError = function(resouceError) {
+    var index = requests.indexOf(response.id);
+    requests.splice(index, 1);
+}
 
 page.open(address, function (status) {
     if (status !== 'success' || system.args.length > 3) {
         // Unable to load the address, or too many args
+        console.log("PhantomJS: page.open failed");
         phantom.exit(1);
     }
-    if (system.args.length === 2) {
-        console.log(page.plainText);
-        phantom.exit();
-    }
-    if (system.args.length == 3) {
-        output = system.args[2];
-        page.render(output);
-        console.log(page.plainText);
-        phantom.exit();
-    }
+
+    // Wait until all network requests finish
+    var interval = setInterval(function () {
+        if (requests.length === 0) {
+            clearInterval(interval);
+
+            if (system.args.length === 2) {
+                console.log(page.plainText);
+                phantom.exit();
+            }
+            if (system.args.length == 3) {
+                output = system.args[2];
+                page.render(output);
+                console.log(page.plainText);
+                phantom.exit();
+            }
+        }
+    }, 3000); // Wait to finish loading
 });
 ]]
 
