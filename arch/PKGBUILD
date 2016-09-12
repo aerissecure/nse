@@ -1,0 +1,27 @@
+# @uthCr33p
+
+pkgname='nmap-nse-extras'
+pkgver='0.1'
+pkgrel=2
+pkgdesc='Extra 3rd-party Nmap scripts.'
+arch=('any')
+url='https://github.com/aerissecure/nse'
+license=('custom:unknown')
+depends=('nmap>7.0', 'phantomjs')
+# groups=('blackarch' 'blackarch-scanner')
+source=('https://github.com/aerissecure/nse/archive/e41ef4302533ba2c61d6a51b4ea8efc71d594001.tar.gz')
+sha1sums=('6f2e287f2e475bf9dde5ffa2a643627152831a8b')
+
+# prepare() {
+#   cd "$srcdir"
+#   mv "nse-e41ef4302533ba2c61d6a51b4ea8efc71d594001" "nse"
+# }
+
+package() {
+  nsedir='nse-e41ef4302533ba2c61d6a51b4ea8efc71d594001'
+  cd "$srcdir"
+  install -D -m644 "$srcdir/$nsedir/http-screenshot.nse" \
+    "$pkgdir/usr/share/nmap/scripts/http-screenshot.nse"
+  install -D -m644 "$srcdir/$nsedir/http-sec-headers.nse" \
+    "$pkgdir/usr/share/nmap/scripts/http-sec-headers.nse"
+}
