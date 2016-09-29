@@ -111,13 +111,13 @@ page.open(address, function (status) {
 ]]
 
 local img_html = [[
-<a href='%s', target=_blank>
+<a href='%s' target=_blank style='font-size:x-large'>
 %s
-<br>
-<img src='%s' width=400 border=1 />
-<br>
 </a>
-<br><hr><br>
+<br>
+<img src='%s' width=400 border=1 style='max-width:1024; margin-top:5px;'
+ onclick='this.setAttribute("width", this.getAttribute("width") === "400" ? "100%%" : "400")' />
+<hr style="margin:20px 0 20px 0">
 ]]
 
 --- References or embeds the image within index.html
