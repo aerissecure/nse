@@ -4,10 +4,11 @@ a rendered image of the website to a file and print a snippet of the visible
 text on the rendered page. An HTML file is produced to display all captured
 images and provide links to their targets
 
-There is an option to save only the rendered text without the image file. There
-is also an option for embeding the base64 encoded image file directly into the
-HTML file file to consolidate the number of output files. The file option allows
-all output files to be prefixed in order to avoid conflicts.
+There is an option to save only the rendered text without the image file. By
+default, images are base64 encoded and embedded in the HTML file. However, the
+files option can be used to output the images to separate files that the HTML
+file will reference. The prefix option allows all output files to be prefixed
+in order to avoid conflicts.
 
 A common use case for this script is to quickly identify what is running on all
 HTTP servers discovered during a scan so that interesting targets can quickly
@@ -19,13 +20,13 @@ downloaded from http://phantomjs.org/ and placed on the system path.
 
 ---
 -- @args http-screenshot.textonly Output only rendered text
--- @args http-screenshot.embed Output embed images into index.html
+-- @args http-screenshot.files Output individual images files
 -- @args http-screenshot.prefix Prefix to use for naming output files
 --
 -- @usage
 -- nmap --script http-screenshot <target>
 -- nmap --script http-screenshot --script-args http-screenshot.textonly <target>
--- nmap --script http-screenshot --script-args http-screenshot.embed <target>
+-- nmap --script http-screenshot --script-args http-screenshot.files <target>
 -- nmap --script http-screenshot --script-args http-screenshot.prefix="pre" <target>
 --
 -- @output
@@ -129,7 +130,9 @@ local index_image = function(imgfile, url)
     local index = io.open(indexfile, "a")
 
     local src
-    if stdnse.get_script_args(SCRIPT_NAME .. '.embed') then
+    if stdnse.get_script_args(SCRIPT_NAME .. '.files') then
+        src = imgfile
+    else -- embed
         local file = io.open(imgfile, "r")
         local data = file:read("*a")
         file:close()
@@ -139,8 +142,6 @@ local index_image = function(imgfile, url)
         -- Delete image file
         stdnse.verbose("deleting embeded image file %s", imgfile)
         os.remove(imgfile)
-    else
-        src = imgfile
     end
     index:write(string.format(img_html, url, url, src))
     index:close()
