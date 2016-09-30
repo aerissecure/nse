@@ -2,23 +2,23 @@
 
 pkgname='nmap-nse-extras'
 pkgver='0.1'
-pkgrel=2
+pkgrel=3
 pkgdesc='Extra 3rd-party Nmap scripts.'
 arch=('any')
 url='https://github.com/aerissecure/nse'
 license=('custom:unknown')
 depends=('nmap>7.0', 'phantomjs')
 # groups=('blackarch' 'blackarch-scanner')
-source=('https://github.com/aerissecure/nse/archive/e41ef4302533ba2c61d6a51b4ea8efc71d594001.tar.gz')
-sha1sums=('6f2e287f2e475bf9dde5ffa2a643627152831a8b')
+source=('https://github.com/aerissecure/nse/archive/93c97bb6f13d5e01907cfef1ce140c1c269366f9.tar.gz')
+sha1sums=('398365e3338af4b42e769018d9f0dd723055aba7')
 
 # prepare() {
 #   cd "$srcdir"
-#   mv "nse-e41ef4302533ba2c61d6a51b4ea8efc71d594001" "nse"
+#   mv "nse-93c97bb6f13d5e01907cfef1ce140c1c269366f9" "nse"
 # }
 
 package() {
-  nsedir='nse-e41ef4302533ba2c61d6a51b4ea8efc71d594001'
+  nsedir='nse-93c97bb6f13d5e01907cfef1ce140c1c269366f9'
   cd "$srcdir"
   install -D -m644 "$srcdir/$nsedir/http-screenshot.nse" \
     "$pkgdir/usr/share/nmap/scripts/http-screenshot.nse"
