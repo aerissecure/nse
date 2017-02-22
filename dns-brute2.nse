@@ -63,7 +63,7 @@ script may need to be adjusted.
 --                                number of threads is the most efficient value.
 -- @output
 -- Pre-scan script results:
--- | dns-brute:
+-- | dns-brute2:
 -- |   DNS Brute-force hostnames
 -- |     www.foo.com - 127.0.0.1
 -- |     mail.foo.com - 127.0.0.2
