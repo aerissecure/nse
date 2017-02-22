@@ -61,6 +61,10 @@ script may need to be adjusted.
 -- @args dns-brute.maxresolvers   Limit the number of resolvers to use from the
 --                                provided list. Number of supplied hosts times the
 --                                number of threads is the most efficient value.
+-- @args dns-brute.stripdomain    Strip subdomains from scanned domains so that children
+--                                of only the primary domain are found. E.g. scan
+--                                *.example.com when sub.example.com is provided, instead
+--                                of *.sub.example.com
 -- @output
 -- Pre-scan script results:
 -- | dns-brute2:
@@ -178,7 +182,10 @@ local function guess_domain(host)
 
   name = stdnse.get_hostname(host)
   if name and name ~= host.ip then
-    return string.match(name, "%.([^.]+%..+)%.?$") or string.match(name, "^([^.]+%.[^.]+)%.?$")
+    if stdnse.get_script_args('dns-brute.stripdomain')
+      return string.match(name, "%.([^.]+%..+)%.?$") or string.match(name, "^([^.]+%.[^.]+)%.?$")
+    end
+    return name
   else
     return nil
   end
