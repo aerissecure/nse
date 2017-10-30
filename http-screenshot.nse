@@ -78,8 +78,8 @@ page.onResourceReceived = function(response) {
     requests.splice(index, 1);
 };
 
-page.onResourceError = function(resouceError) {
-    var index = requests.indexOf(response.id);
+page.onResourceError = function(resourceError) {
+    var index = requests.indexOf(resourceError.id);
     requests.splice(index, 1);
 }
 

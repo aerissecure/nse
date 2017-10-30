@@ -182,7 +182,7 @@ local function guess_domain(host)
 
   name = stdnse.get_hostname(host)
   if name and name ~= host.ip then
-    if stdnse.get_script_args('dns-brute.stripdomain')
+    if stdnse.get_script_args('dns-brute.stripdomain') then
       return string.match(name, "%.([^.]+%..+)%.?$") or string.match(name, "^([^.]+%.[^.]+)%.?$")
     end
     return name
