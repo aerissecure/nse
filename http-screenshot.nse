@@ -78,6 +78,7 @@ page.onResourceRequested = function(requestData, networkRequest) {
 
 page.onResourceReceived = function(response) {
     var index = requests.indexOf(response.id);
+    waitTime = 0; // reset waitTime when resource is received
     requests.splice(index, 1);
 };
 
