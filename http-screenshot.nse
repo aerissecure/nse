@@ -65,9 +65,12 @@ var page = require('webpage').create(),
 
 address = system.args[1];
 page.viewportSize = { width: 1024, height: 600 };
-page.settings.resourceTimeout = 30000; // Allow time for slow resources
+page.settings.resourceTimeout = 2000; // Allow time for slow resources
+
+var pageTimeout = 30000;
 
 var requests = [];
+var waitTime = 0;
 
 page.onResourceRequested = function(requestData, networkRequest) {
     requests.push(requestData.id);
@@ -83,6 +86,11 @@ page.onResourceError = function(resourceError) {
     requests.splice(index, 1);
 }
 
+page.onResourceTimeout = function(request) {
+    var index = requests.indexOf(request.id);
+    requests.splice(index, 1);
+};
+
 page.open(address, function (status) {
     if (status !== 'success' || system.args.length > 3) {
         // Unable to load the address, or too many args
@@ -92,6 +100,13 @@ page.open(address, function (status) {
 
     // Wait until all network requests finish
     var interval = setInterval(function () {
+        waitTime += 3000;
+        // exit if pageTimeout is reached
+        if (waitTime > pageTimeout) {
+            console.log("error rendering output, pageTimeout reached: " + pageTimeout)
+            phantom.exit();
+        }
+
         if (requests.length === 0) {
             clearInterval(interval);
 
