@@ -16,6 +16,7 @@ Makes a request to the root folder ("/") of a web server and reports on the secu
 -- |     Strict-Transport-Security: missing
 -- |     X-Content-Type-Options: missing
 -- |     Content-Security-Policy: missing
+-- |     Referrer-Policy: missing
 -- |   present:
 -- |     X-XSS-Protection: 1; mode=block
 -- |_    X-Frame-Options: SAMEORIGIN
@@ -102,6 +103,14 @@ action = function(host, port)
         output.present["X-XSS-Protection"] = hdrval
     end
 
+    -- controls information leaked in the referer header
+    hdrval = result.header['referrer-policy']
+    if hdrval == nil then
+        output.missing["Referrer-Policy"] = "missing"
+    else
+        output.present["Referrer-Policy"] = hdrval
+    end
+
     --  minimum recommended value is 2592000 (30 days).
     hdrval = result.header['strict-transport-security']
     if proto == "https" and hdrval == nil then
@@ -118,8 +127,10 @@ action = function(host, port)
         output.present["Public-Key-Pins"] = hdrval
     end
 
-    stdnse.verbose(result.header['content-type'])
-    -- return result.header
+    hdrval = result.header['content-type']
+    if hdrval ~= nil then
+        stdnse.verbose("Response Content-Type: "..result.header['content-type'])
+    end
 
     -- remove empty sections
     if next(output.missing) == nil then
