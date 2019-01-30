@@ -1,27 +1,31 @@
 # @uthCr33p
 
-pkgname='nmap-nse-extras'
-pkgver='0.1'
-pkgrel=3
+pkgname='nmap-nse-extras-git'
+pkgver=20180319
+pkgrel=1
 pkgdesc='Extra 3rd-party Nmap scripts.'
 arch=('any')
 url='https://github.com/aerissecure/nse'
 license=('custom:unknown')
 depends=('nmap>7.0', 'phantomjs')
-# groups=('blackarch' 'blackarch-scanner')
-source=('https://github.com/aerissecure/nse/archive/93c97bb6f13d5e01907cfef1ce140c1c269366f9.tar.gz')
-sha1sums=('398365e3338af4b42e769018d9f0dd723055aba7')
+makedepends=('git')
+sha256sums=('SKIP')
+source=(git+https://github.com/aerissecure/nse)
+_reponame="nse"
 
-# prepare() {
-#   cd "$srcdir"
-#   mv "nse-93c97bb6f13d5e01907cfef1ce140c1c269366f9" "nse"
-# }
+pkgver() {
+	cd $_reponame
+	git log -1 --format="%cd" --date=short | sed "s|-||g"
+}
 
 package() {
-  nsedir='nse-93c97bb6f13d5e01907cfef1ce140c1c269366f9'
-  cd "$srcdir"
-  install -D -m644 "$srcdir/$nsedir/http-screenshot.nse" \
-    "$pkgdir/usr/share/nmap/scripts/http-screenshot.nse"
-  install -D -m644 "$srcdir/$nsedir/http-sec-headers.nse" \
-    "$pkgdir/usr/share/nmap/scripts/http-sec-headers.nse"
+	cd $_reponame
+	msg 'Installing NSE scripts'
+	# create dir
+	install -dm 755 "$pkgdir/usr/share/nmap/scripts"
+	install -m 644 *.nse "$pkgdir/usr/share/nmap/scripts"
+
+	msg 'Installing script data'
+	install -dm 755 "$pkgdir/usr/share/nmap/nselib/data"
+	install -m 644 data/* "$pkgdir/usr/share/nmap/nselib/data"
 }
