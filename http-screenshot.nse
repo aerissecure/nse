@@ -4,11 +4,14 @@ a rendered image of the website to a file and print a snippet of the visible
 text on the rendered page. An HTML file is produced to display all captured
 images and provide links to their targets
 
-There is an option to save only the rendered text without the image file. By
-default, images are base64 encoded and embedded in the HTML file. However, the
-files option can be used to output the images to separate files that the HTML
-file will reference. The prefix option allows all output files to be prefixed
-in order to avoid conflicts.
+There is a 'textonly' option to save only the rendered text without the image
+file. By default, images are base64 encoded and embedded in the HTML file.
+However, the 'files' option can be used to output the images to separate files
+that the HTML file will reference. The 'prefix' option allows all output files
+to be prefixed in order to avoid conflicts.
+
+If you encounter errors running this script on a headless system, you can use
+the 'headless' option to pass the correct environment variables.
 
 A common use case for this script is to quickly identify what is running on all
 HTTP servers discovered during a scan so that interesting targets can quickly
