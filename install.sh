@@ -14,3 +14,5 @@ install -m 644 "$DIR"/*.nse  /usr/share/nmap/scripts
 install -m 644 "$DIR"/data/* /usr/share/nmap/nselib/data
 
 nmap --script-updatedb
+
+rm -rf "$DIR"
