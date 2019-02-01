@@ -6,9 +6,11 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-git clone https://github.com/aerissecure/nse /tmp/nse
+DIR=$(mktemp -d)
 
-install -m 644 "/tmp/nse/*.nse" /usr/share/nmap/scripts
-install -m 644 "/tmp/nse/data/*" /usr/share/nmap/nselib/data
+git clone https://github.com/aerissecure/nse "$DIR"
+
+install -m 644 "$DIR"/*.nse  /usr/share/nmap/scripts
+install -m 644 "$DIR"/data/* /usr/share/nmap/nselib/data
 
 nmap --script-updatedb
