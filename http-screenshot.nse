@@ -28,6 +28,7 @@ downloaded from http://phantomjs.org/ and placed on the system path.
 -- nmap --script http-screenshot --script-args http-screenshot.textonly <target>
 -- nmap --script http-screenshot --script-args http-screenshot.files <target>
 -- nmap --script http-screenshot --script-args http-screenshot.prefix="pre" <target>
+-- nmap --script http-screenshot --script-args http-screenshot.headless
 --
 -- @output
 -- 443/tcp open  https   syn-ack
@@ -227,7 +228,17 @@ action = function(host, port)
     stdnse.verbose("rendering html for %s", target)
 
     local pjsfile = nmap.registry[SCRIPT_NAME].pjsfile
-    local cmd = string.format("phantomjs --ignore-ssl-errors=true %s %s %s", pjsfile, url, filename)
+
+    local cmd
+    if stdnse.get_script_args(SCRIPT_NAME .. '.headless') then
+        -- create XDG_RUNTIME_DIR, accessible only by user
+        local tmpdir = os.tmpname()
+        os.remove(tmpdir)
+        os.execute("mkdir -m 700 " .. tmpdir)
+        cmd = string.format("XDG_RUNTIME_DIR=\"%s\" QT_QPA_PLATFORM=offscreen phantomjs --ignore-ssl-errors=true %s %s %s", tmpdir, pjsfile, url, filename)
+    else
+        cmd = string.format("phantomjs --ignore-ssl-errors=true %s %s %s", pjsfile, url, filename)
+    end
 
     local file = io.popen(cmd, 'r')
     if file == nil then
