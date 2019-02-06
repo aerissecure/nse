@@ -15,7 +15,7 @@ _reponame="nse"
 
 pkgver() {
 	cd $_reponame
-	git log -1 --format="%cd" --date=short | sed "s|-||g"
+	printf "r%s.%s-%s"  "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 package() {
