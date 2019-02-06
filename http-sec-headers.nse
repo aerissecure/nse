@@ -38,12 +38,23 @@ local stdnse = require "stdnse"
 
 portrule = shortport.http
 
+---Get the best possible hostname for the given host. Like stdnse.get_hostname
+-- but does not use reverse dns name.
+local function get_hostname(host)
+  if type(host) == "table" then
+    return host.targetname or host.ip
+  else
+    return host
+  end
+end
+
 action = function(host, port)
     local path = "/"
     local method = "GET"
     local https_redirect = false
+    local hostname = get_hostname(host)
 
-    response = http.generic_request(host, port, method, path)
+    response = http.generic_request(hostname, port, method, path)
 
     -- validate response
     if response == nil then
@@ -66,6 +77,7 @@ action = function(host, port)
     local output = stdnse.output_table()
     output.missing = {}
     output.present = {}
+    output.hostname = hostname
     if not response.ssl then
         output["redirect-http-to-https"] = https_redirect
     end
