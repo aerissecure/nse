@@ -1,5 +1,5 @@
 description = [[
-Makes a request to the root folder ("/") of a web server and reports on the security headers that are missing from the response. This script mimics the functionality of https://securityheaders.io and is modeled after http-headers.nse.
+Makes a request to the root folder ("/") of a web server and reports on the security headers that are missing from the data. This script mimics the functionality of https://securityheaders.io and is modeled after http-headers.nse.
 ]]
 
 ---
@@ -12,7 +12,6 @@ Makes a request to the root folder ("/") of a web server and reports on the secu
 -- 443/tcp open  https   syn-ack
 -- | http-sec-headers:
 -- |   missing:
--- |     Public-Key-Pins: missing
 -- |     Strict-Transport-Security: missing
 -- |     X-Content-Type-Options: missing
 -- |     Content-Security-Policy: missing
@@ -23,7 +22,7 @@ Makes a request to the root folder ("/") of a web server and reports on the secu
 
 
 -- HTTP Security Headers
--- rev 1.0 (2016-07-25)
+-- rev 2.0 (2018-02-06)
 -- Original NASL script by Jeffrey Stiles (@uthcr33p)(jeff@aerissecure.com)
 
 
@@ -41,38 +40,38 @@ portrule = shortport.http
 
 action = function(host, port)
     local path = "/"
-    local request_type = "HEAD"
-    local proto = "http"
+    local method = "GET"
+    local https_redirect = false
 
-    if port.version.service_tunnel == "ssl" or string.find(port.service, "https") then
-        proto = "https"
+    response = http.generic_request(host, port, method, path)
+
+    -- validate response
+    if response == nil then
+        return stdnse.format_output(false, "Request returned an empty response")
+    end
+    if response.rawheader == nil then
+        return stdnse.format_output(false, "Request returned an empty rawheader table")
     end
 
-    -- try HEAD request first
-    local status, result
-    status, result = http.can_use_head(host, port, nil, path)
-
-    -- if HEAD failed, use GET
-    if status == false then
-        stdnse.debug1("HEAD request failed, falling back to GET")
-        result = http.get(host, port, path)
-        request_type = "GET"
-    end
-
-    if result == nil then
-        return stdnse.format_output(false, "Header request failed")
-    end
-
-    if result.rawheader == nil then
-        return stdnse.format_output(false, "Header request didn't return a proper header")
+    -- check for http -> http redirect
+    local redirect = not(tostring(response.status):match("^30[01237]$") == nil)
+    if (response.ssl == false and redirect) then
+        stdnse.verbose("redirect detected. target: "..response.header.location)
+        -- response.header.location only exists for redirects
+        if response.header.location:sub(1, #"https") == "https" then
+            https_redirect = true
+        end
     end
 
     local output = stdnse.output_table()
     output.missing = {}
     output.present = {}
+    if not response.ssl then
+        output["redirect-http-to-https"] = https_redirect
+    end
 
     -- restrict assets the browser can load
-    local hdrval = result.header['content-security-policy']
+    local hdrval = response.header['content-security-policy']
     if hdrval == nil then
         output.missing["Content-Security-Policy"] = "missing"
     else
@@ -80,7 +79,7 @@ action = function(host, port)
     end
 
     -- only supports one value: nosniff
-    hdrval = result.header['x-content-type-options']
+    hdrval = response.header['x-content-type-options']
     if hdrval == nil then
         output.missing["X-Content-Type-Options"] = "missing"
     else
@@ -88,7 +87,7 @@ action = function(host, port)
     end
 
     -- prevent click-jacking. Values include DENY, SAMEORIGIN, ALLOW-FROM
-    hdrval = result.header['x-frame-options']
+    hdrval = response.header['x-frame-options']
     if hdrval == nil then
         output.missing["X-Frame-Options"] = "missing"
     else
@@ -96,7 +95,7 @@ action = function(host, port)
     end
 
     -- recommended value is "1" (enabled) and "mode=block" (instead of "=report")
-    hdrval = result.header['x-xss-protection']
+    hdrval = response.header['x-xss-protection']
     if hdrval == nil then
         output.missing["X-XSS-Protection"] = "missing"
     else
@@ -104,32 +103,39 @@ action = function(host, port)
     end
 
     -- controls information leaked in the referer header
-    hdrval = result.header['referrer-policy']
+    hdrval = response.header['referrer-policy']
     if hdrval == nil then
         output.missing["Referrer-Policy"] = "missing"
     else
         output.present["Referrer-Policy"] = hdrval
     end
 
+    hdrval = response.header['feature-policy']
+    if hdrval == nil then
+        output.missing["Feature-Policy"] = "missing"
+    else
+        output.present["Feature-Policy"] = hdrval
+    end
+
     --  minimum recommended value is 2592000 (30 days).
-    hdrval = result.header['strict-transport-security']
-    if proto == "https" and hdrval == nil then
+    hdrval = response.header['strict-transport-security']
+    if response.ssl and hdrval == nil then
         output.missing["Strict-Transport-Security"] = "missing"
     else
         output.present["Strict-Transport-Security"] = hdrval
     end
 
-    -- allows pinning of specific certs
-    hdrval = result.header['public-key-pins']
-    if proto == "https" and hdrval == nil then
-        output.missing["Public-Key-Pins"] = "missing"
+    hdrval = response.header['expect-ct']
+    if response.ssl and hdrval == nil then
+        output.missing["Expect-CT"] = "missing"
     else
-        output.present["Public-Key-Pins"] = hdrval
+        output.present["Expect-CT"] = hdrval
     end
 
-    hdrval = result.header['content-type']
+
+    hdrval = response.header['content-type']
     if hdrval ~= nil then
-        stdnse.verbose("Response Content-Type: "..result.header['content-type'])
+        stdnse.verbose("Response Content-Type: "..response.header['content-type'])
     end
 
     -- remove empty sections
