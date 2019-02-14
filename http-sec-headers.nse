@@ -3,7 +3,8 @@ Makes a request to the root folder ("/") of a web server and reports on the secu
 ]]
 
 ---
--- @args
+-- @args http-sec-headers.username basic auth username
+-- @args http-sec-headers.password basic auth password
 --
 -- @usage
 -- nmap --script http-sec-headers <target>
@@ -52,9 +53,19 @@ action = function(host, port)
     local path = "/"
     local method = "GET"
     local https_redirect = false
+    local redirect_location = nil
     local hostname = get_hostname(host)
+    local auth = nil
 
-    response = http.generic_request(hostname, port, method, path)
+    local username = stdnse.get_script_args(SCRIPT_NAME .. ".username")
+    local password = stdnse.get_script_args(SCRIPT_NAME .. ".password")
+
+    if username and password then
+        auth = {username=username, password=password}
+    end
+
+    stdnse.verbose("Sending %s request to %s:%s", method, hostname, port.number)
+    response = http.generic_request(hostname, port, method, path, {auth=auth})
 
     -- validate response
     if response == nil then
@@ -64,8 +75,12 @@ action = function(host, port)
         return stdnse.format_output(false, "Request returned an empty rawheader table")
     end
 
+    stdnse.verbose("Response status: %s (ssl=%s)", response.status, response.ssl)
+
+    local code = tostring(response.status)
+
     -- check for http -> http redirect
-    local redirect = not(tostring(response.status):match("^30[01237]$") == nil)
+    local redirect = not(code:match("^30[01237]$") == nil)
     if (response.ssl == false and redirect) then
         stdnse.verbose("redirect detected. target: "..response.header.location)
         -- response.header.location only exists for redirects
@@ -80,6 +95,14 @@ action = function(host, port)
     output.hostname = hostname
     if not response.ssl then
         output["redirect-http-to-https"] = https_redirect
+    end
+    if redirect then
+        output["redirect-location"] = response.header.location
+    end
+
+    output.status = code
+    if not(code:match("^[45]") == nil) then
+        output.status = output.status .. " (possible error)"
     end
 
     -- restrict assets the browser can load
