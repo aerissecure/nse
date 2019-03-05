@@ -15,12 +15,13 @@ Main and Aggressive Mode and sends multiple transforms per request.
 ---
 -- @usage
 -- nmap -sU -sV -p 500 <target>
--- nmap -sU -p 500 --script ike-version <target>
+-- nmap -sU -p 500 --script ike-mode <target>
 --
 -- @output
 -- PORT    STATE SERVICE REASON       VERSION
 -- 500/udp open  isakmp  udp-response Fortinet FortiGate v5
--- | ike-version:
+-- | ike-mode:
+-- |   mode: Aggressive
 -- |   vendor_id: Fortinet FortiGate v5
 -- |   attributes:
 -- |     Dead Peer Detection v1.0
