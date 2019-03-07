@@ -13,13 +13,32 @@ Makes a request to the root folder ("/") of a web server and reports on the secu
 -- 443/tcp open  https   syn-ack
 -- | http-sec-headers:
 -- |   missing:
--- |     Strict-Transport-Security: missing
--- |     X-Content-Type-Options: missing
--- |     Content-Security-Policy: missing
--- |     Referrer-Policy: missing
+-- |     Content-Security-Policy
+-- |     Feature-Policy
+-- |     Expect-CT
 -- |   present:
 -- |     X-XSS-Protection: 1; mode=block
--- |_    X-Frame-Options: SAMEORIGIN
+-- |     X-Frame-Options: SAMEORIGIN
+-- |     X-Content-Type-Options: nosniff
+-- |     Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+-- |     Referrer-Policy: strict-origin
+-- |   hostname: example.com
+-- |_  status: 200
+-- @xmloutput
+-- <table key="missing">
+-- <elem>Content-Security-Policy</elem>
+-- <elem>Feature-Policy</elem>
+-- <elem>Expect-CT</elem>
+-- </table>
+-- <table key="present">
+-- <elem key="Referrer-Policy">strict-origin</elem>
+-- <elem key="Strict-Transport-Security">max-age=31536000; includeSubDomains; preload</elem>
+-- <elem key="X-XSS-Protection">1; mode=block</elem>
+-- <elem key="X-Content-Type-Options">nosniff</elem>
+-- <elem key="X-Frame-Options">SAMEORIGIN</elem>
+-- </table>
+-- <elem key="hostname">example.com</elem>
+-- <elem key="status">200</elem>
 
 
 -- HTTP Security Headers
@@ -108,7 +127,7 @@ action = function(host, port)
     -- restrict assets the browser can load
     local hdrval = response.header['content-security-policy']
     if hdrval == nil then
-        output.missing["Content-Security-Policy"] = "missing"
+        table.insert(output.missing, "Content-Security-Policy")
     else
         output.present["Content-Security-Policy"] = hdrval
     end
@@ -116,7 +135,7 @@ action = function(host, port)
     -- only supports one value: nosniff
     hdrval = response.header['x-content-type-options']
     if hdrval == nil then
-        output.missing["X-Content-Type-Options"] = "missing"
+        table.insert(output.missing, "X-Content-Type-Options")
     else
         output.present["X-Content-Type-Options"] = hdrval
     end
@@ -124,7 +143,7 @@ action = function(host, port)
     -- prevent click-jacking. Values include DENY, SAMEORIGIN, ALLOW-FROM
     hdrval = response.header['x-frame-options']
     if hdrval == nil then
-        output.missing["X-Frame-Options"] = "missing"
+        table.insert(output.missing, "X-Frame-Options")
     else
         output.present["X-Frame-Options"] = hdrval
     end
@@ -132,7 +151,7 @@ action = function(host, port)
     -- recommended value is "1" (enabled) and "mode=block" (instead of "=report")
     hdrval = response.header['x-xss-protection']
     if hdrval == nil then
-        output.missing["X-XSS-Protection"] = "missing"
+        table.insert(output.missing, "X-XSS-Protection")
     else
         output.present["X-XSS-Protection"] = hdrval
     end
@@ -140,14 +159,14 @@ action = function(host, port)
     -- controls information leaked in the referer header
     hdrval = response.header['referrer-policy']
     if hdrval == nil then
-        output.missing["Referrer-Policy"] = "missing"
+        table.insert(output.missing, "Referrer-Policy")
     else
         output.present["Referrer-Policy"] = hdrval
     end
 
     hdrval = response.header['feature-policy']
     if hdrval == nil then
-        output.missing["Feature-Policy"] = "missing"
+        table.insert(output.missing, "Feature-Policy")
     else
         output.present["Feature-Policy"] = hdrval
     end
@@ -155,14 +174,14 @@ action = function(host, port)
     --  minimum recommended value is 2592000 (30 days).
     hdrval = response.header['strict-transport-security']
     if response.ssl and hdrval == nil then
-        output.missing["Strict-Transport-Security"] = "missing"
+        table.insert(output.missing, "Strict-Transport-Security")
     else
         output.present["Strict-Transport-Security"] = hdrval
     end
 
     hdrval = response.header['expect-ct']
     if response.ssl and hdrval == nil then
-        output.missing["Expect-CT"] = "missing"
+        table.insert(output.missing, "Expect-CT")
     else
         output.present["Expect-CT"] = hdrval
     end
