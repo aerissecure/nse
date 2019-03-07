@@ -20,33 +20,33 @@ References:
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 443/tcp open  https   syn-ack ttl 45
--- | http-breach: 
+-- | http-breach:
 -- |   VULNERABLE:
 -- |   HTTP BREACH vulnerability
 -- |     State: LIKELY VULNERABLE
 -- |     IDs:  CVE:CVE-2013-3587
 -- |       Make note that this is only have of the confirmation....
--- |       
+-- |
 -- |       This web application might be affected by the BREACH attack. CRIME
 -- |       is a compression side-channel attack against HTTPS. BREACH is based
 -- |       on CRIME but attacks HTTP compression--the use of gzip or DEFLATE
 -- |       data compression in the Content-Encoding header.
--- |       
+-- |
 -- |       For a server to be vulnerable to BREACH it must:
--- |       
+-- |
 -- |       1. Use HTTP-level compression
 -- |       2. Reflect user-input in HTTP response bodies
 -- |       3. Reflect a secret (such as a CSRF token) in HTTP response bodies
--- |       
+-- |
 -- |       This script only checks for #1, but also confirms that the response is
 -- |       successfully received with the Referer header set (some mitigations are
 -- |       based on this header; see the qualys link).
--- |       
+-- |
 -- |       To complete the test for BREACH, #2 and #3 must be identified. #2 can
 -- |       be found with the "Input returned in response (reflected)" issue in Burp
 -- |       Suite Professional's scanner. Whether those same requests return a secret
 -- |       must be manually confirmed.
--- |       		
+-- |
 -- |     Disclosure date: 2013-09-11
 -- |     Check results:
 -- |       Host: example.com
@@ -56,7 +56,7 @@ References:
 -- |     References:
 -- |       http://www.breachattack.com/
 -- |_      https://blog.qualys.com/ssllabs/2013/08/07/defending-against-the-breach-attack
--- 
+--
 -- @xmloutput
 -- <table key="CVE-2013-3587">
 -- <elem key="title">HTTP BREACH vulnerability</elem>
@@ -65,7 +65,7 @@ References:
 -- <elem>CVE:CVE-2013-3587</elem>
 -- </table>
 -- <table key="description">
--- <elem>Make note that this is only have of the confirmation....&#xa;&#xa;This web application might be affected by the BREACH attack. CRIME&#xa;is a compression side-channel attack against HTTPS. BREACH is based&#xa;on CRIME but attacks HTTP compression-&#45;the use of gzip or DEFLATE&#xa;data compression in the Content-Encoding header.&#xa;&#xa;For a server to be vulnerable to BREACH it must:&#xa;&#xa;1. Use HTTP-level compression&#xa;2. Reflect user-input in HTTP response bodies&#xa;3. Reflect a secret (such as a CSRF token) in HTTP response bodies&#xa;&#xa;This script only checks for #1, but also confirms that the response is&#xa;successfully received with the Referer header set (some mitigations are&#xa;based on this header; see the qualys link).&#xa;&#xa;To complete the test for BREACH, #2 and #3 must be identified. #2 can&#xa;be found with the &quot;Input returned in response (reflected)&quot; issue in Burp&#xa;Suite Professional&apos;s scanner. Whether those same requests return a secret&#xa;must be manually confirmed.&#xa;&#x9;&#x9;</elem>
+-- <elem>Make note that this is only have of the confirmation....&#xa;&#xa;This web application might be affected by the BREACH attack. CRIME&#xa;is a compression side-channel attack against HTTPS. BREACH is based&#xa;on CRIME but attacks HTTP compression-&#45;the use of gzip or DEFLATE&#xa;data compression in the Content-Encoding header.&#xa;&#xa;For a server to be vulnerable to BREACH it must:&#xa;&#xa;1. Use HTTP-level compression&#xa;2. Reflect user-input in HTTP response bodies&#xa;3. Reflect a secret (such as a CSRF token) in HTTP response bodies&#xa;&#xa;This script only checks for #1, but also confirms that the response is&#xa;successfully received with the Referer header set (some mitigations are&#xa;based on this header; see the Qualys link).&#xa;&#xa;To complete the test for BREACH, #2 and #3 must be identified. #2 can&#xa;be found with the &quot;Input returned in response (reflected)&quot; issue in Burp&#xa;Suite Professional&apos;s scanner. Whether those same requests return a secret&#xa;must be manually confirmed.&#xa;&#x9;&#x9;</elem>
 -- </table>
 -- <table key="dates">
 -- <table key="disclosure">
@@ -110,26 +110,27 @@ local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or '/'
 	options["header"]["Accept-encoding"] = "gzip,deflate,compress"
 	options["header"]["Accept"] = "text/*"
 
-	stdnse.verbose("Sending GET request to %s:%s", hostname, port.number)
+	stdnse.verbose("[%s] Sending GET request to '%s'", hostname, uri)
 	local rsp = http.get(hostname, port, uri, options)
 
-
 	if rsp == nil then
-		stdnse.verbose("Request returned an empty response")
+		stdnse.debug1("[%s]: Response is empty", hostname)
 		return
 	end
 
 	if rsp.status == nil then
-	stdnse.verbose("%s", rsp["status-line"])
-end
+		stdnse.debug1("[%s] Error with request: %s", hostname, rsp["status-line"])
+		return
+	end
 
 	if rsp.status ~= 200 then
-		stdnse.verbose("Response not 200 %s", rsp.status)
+		stdnse.debug1("[%s] Skipping, response code was %s, not 200", hostname, rsp.status)
 		return
 	end
 
 	local encoding = rsp.header["content-encoding"]
 	if encoding == nil then
+		stdnse.debug1("[%s] Skipping, Content-Encoding header not present", hostname)
 		return
 	end
 
@@ -151,7 +152,7 @@ For a server to be vulnerable to BREACH it must:
 
 This script only checks for #1, but also confirms that the response is
 successfully received with the Referer header set (some mitigations are
-based on this header; see the qualys link).
+based on this header; see the Qualys link).
 
 To complete the test for BREACH, #2 and #3 must be verified. #2 can
 be found with the "Input returned in response (reflected)" issue in Burp
@@ -173,5 +174,5 @@ Suite Professional's scanner. Whether those same requests return a secret
 			string.format("Request Referer: %s", options["header"]["Referer"])
 		}
 	}
-	return vuln_report:make_output(vuln)	
+	return vuln_report:make_output(vuln)
 end
