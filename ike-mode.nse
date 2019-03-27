@@ -146,6 +146,7 @@ action = function( host, port )
     end
 
     local attribs = {}
+    info.attribs = info.attribs or {}
     for i, attrib in ipairs(info.attribs) do
       attribs[i] = attrib.text
       if attrib.ostype or attrib.devicetype or attrib.cpe then
