@@ -13,6 +13,8 @@ sha256sums=('SKIP')
 source=(git+https://github.com/aerissecure/nse)
 _reponame="nse"
 
+install=nmap-nse-extras-git.install
+
 pkgver() {
 	cd $_reponame
 	printf "r%s.%s"  "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
