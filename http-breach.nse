@@ -161,7 +161,8 @@ Suite Professional's scanner. Whether those same requests return a secret
 		IDS = {CVE = "CVE-2013-3587"},
 		references = {
 			"http://www.breachattack.com/",
-			"https://blog.qualys.com/ssllabs/2013/08/07/defending-against-the-breach-attack"
+			"https://blog.qualys.com/ssllabs/2013/08/07/defending-against-the-breach-attack",
+			"https://blog.cloudflare.com/a-solution-to-compression-oracles-on-the-web/",
 		},
 		dates = {
 			disclosure = {year = "2013", month = "09", day = "11"},
@@ -170,7 +171,7 @@ Suite Professional's scanner. Whether those same requests return a secret
 			string.format("Host: %s", hostname),
 			string.format("Content-Encoding: %s", encoding),
 			string.format("Response code: %s", rsp.status),
-			string.format("Request Referer: %s", options["header"]["Referer"])
+			string.format("Request Referer: %s", options["header"]["Referer"]),
 		}
 	}
 	return vuln_report:make_output(vuln)
