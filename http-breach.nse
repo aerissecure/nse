@@ -12,6 +12,7 @@ The script can only confirm if an HTTPS request successfully completes with a Re
 References:
 * http://www.breachattack.com/
 * https://blog.qualys.com/ssllabs/2013/08/07/defending-against-the-breach-attack
+* https://blog.cloudflare.com/a-solution-to-compression-oracles-on-the-web/
 ]]
 
 ---
@@ -25,8 +26,6 @@ References:
 -- |   HTTP BREACH vulnerability
 -- |     State: LIKELY VULNERABLE
 -- |     IDs:  CVE:CVE-2013-3587
--- |       Make note that this is only have of the confirmation....
--- |
 -- |       This web application might be affected by the BREACH attack. CRIME
 -- |       is a compression side-channel attack against HTTPS. BREACH is based
 -- |       on CRIME but attacks HTTP compression--the use of gzip or DEFLATE
