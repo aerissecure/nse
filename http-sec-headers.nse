@@ -3,8 +3,9 @@ Makes a request to the root folder ("/") of a web server and reports on the secu
 ]]
 
 ---
--- @args http-sec-headers.username basic auth username
--- @args http-sec-headers.password basic auth password
+-- @args http-sec-headers.username Basic auth username
+-- @args http-sec-headers.password Basic auth password
+-- @args http-sec-headers.url-path The path to request. Defaults to <code>/</code>.
 --
 -- @usage
 -- nmap --script http-sec-headers <target>
@@ -78,6 +79,11 @@ action = function(host, port)
 
     local username = stdnse.get_script_args(SCRIPT_NAME .. ".username")
     local password = stdnse.get_script_args(SCRIPT_NAME .. ".password")
+    local argpath = stdnse.get_script_args(SCRIPT_NAME .. ".url-path")
+    if argpath ~= nil then
+        path = argpath
+    end
+
 
     if username and password then
         auth = {username=username, password=password}
