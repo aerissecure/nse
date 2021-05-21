@@ -105,7 +105,7 @@ action = function(host, port)
     local code = tostring(response.status)
 
     -- check for http -> http redirect
-    local redirect = not(code:match("^30[01237]$") == nil)
+    local redirect = not(code:match("^30[012378]$") == nil)
     if (response.ssl == false and redirect) then
         stdnse.verbose("redirect detected. target: "..response.header.location)
         -- response.header.location only exists for redirects
