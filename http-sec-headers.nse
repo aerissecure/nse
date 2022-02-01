@@ -15,7 +15,7 @@ Makes a request to the root folder ("/") of a web server and reports on the secu
 -- | http-sec-headers:
 -- |   missing:
 -- |     Content-Security-Policy
--- |     Feature-Policy
+-- |     Permissions-Policy
 -- |     Expect-CT
 -- |   present:
 -- |     X-XSS-Protection: 1; mode=block
@@ -28,7 +28,7 @@ Makes a request to the root folder ("/") of a web server and reports on the secu
 -- @xmloutput
 -- <table key="missing">
 -- <elem>Content-Security-Policy</elem>
--- <elem>Feature-Policy</elem>
+-- <elem>Permissions-Policy</elem>
 -- <elem>Expect-CT</elem>
 -- </table>
 -- <table key="present">
@@ -170,11 +170,11 @@ action = function(host, port)
         output.present["Referrer-Policy"] = hdrval
     end
 
-    hdrval = response.header['feature-policy']
+    hdrval = response.header['permissions-policy']
     if hdrval == nil then
-        table.insert(output.missing, "Feature-Policy")
+        table.insert(output.missing, "Permissions-Policy")
     else
-        output.present["Feature-Policy"] = hdrval
+        output.present["Permissions-Policy"] = hdrval
     end
 
     --  minimum recommended value is 2592000 (30 days).
