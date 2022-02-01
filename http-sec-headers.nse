@@ -118,6 +118,9 @@ action = function(host, port)
     output.missing = {}
     output.present = {}
     output.hostname = hostname
+    if path ~= "/" then
+        output.path = path
+    end
     if not response.ssl then
         output["redirect-http-to-https"] = https_redirect
     end
